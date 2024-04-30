@@ -1,0 +1,29 @@
+[tool.poetry]
+name = "interop-llm-tools"
+version = "0.1.0"
+description = ""
+authors = ["Michael Pruitt <mpruitt@redhat.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python =  ">=3.12,<3.13"
+python-dotenv = "^1.0.1"
+litellm = "^1.35.32"
+llama-index = "^0.10.33"
+llama-index-llms-litellm = "^0.1.4"
+pyyaml = "^6.0.1"
+chromadb = "^0.5.0"
+llama-index-vector-stores-chroma = "^0.1.7"
+llama-index-embeddings-huggingface = "^0.2.0"
+
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.2.0"
+black = "^24.4.2"
+arize-phoenix = {extras = ["evals"], version = "^3.24.0"}
+openinference-instrumentation-llama-index = ">=1.0.0"
+llama-index-callbacks-arize-phoenix = ">=0.1.2"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
