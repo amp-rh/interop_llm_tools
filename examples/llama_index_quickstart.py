@@ -4,12 +4,15 @@ from llama_index.llms.litellm import LiteLLM
 from interop_llm_tools.config import get_config
 
 config = get_config()
-print(config.models.instruct_model_params.as_litellm_dict())
 
 
 def main():
-    response = LiteLLM(
-        **config.models.instruct_model_params.as_litellm_dict(), temperature=0.0
+    resp = LiteLLM(
+        model=f"openai/{config.openai_default_instruct_model}",
+        temperature=0.0,
+        api_base=config.openai_api_base,
+        api_key=config.openai_api_key,
+        organization="",
     ).chat(
         messages=[
             ChatMessage.from_str(
@@ -19,7 +22,7 @@ def main():
             ChatMessage.from_str(content="Hello, how are you", role=MessageRole.USER),
         ]
     )
-    print(response)
+    print(resp)
 
 
 if __name__ == "__main__":

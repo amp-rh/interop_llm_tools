@@ -6,10 +6,11 @@ config = get_config()
 
 
 def main():
-    response = litellm.completion(
-        model="ollama/mistral-7b-instruct-v0.2.Q4_K_M.gguf",
-        api_base=config.default_llm_api_base_url,
-        temperature=0.0,
+    resp = litellm.completion(
+        model=f"openai/{config.openai_default_instruct_model}",
+        api_key=config.openai_api_key,
+        api_base=config.openai_api_base,
+        organization="",
         messages=[
             {
                 "content": "You are a duck. You only know how to quack.",
@@ -18,7 +19,7 @@ def main():
             {"content": "Hello, how are you?", "role": "user"},
         ],
     )
-    print(response)
+    print(resp)
 
 
 if __name__ == "__main__":
