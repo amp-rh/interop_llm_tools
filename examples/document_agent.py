@@ -11,8 +11,6 @@ from llama_index.core import (
 from llama_index.core.ingestion import IngestionPipeline
 from llama_index.core.node_parser import SentenceSplitter
 from llama_index.core.tools import QueryEngineTool
-from llama_index.embeddings.huggingface import HuggingFaceEmbedding
-from llama_index.llms.litellm import LiteLLM
 from llama_index.vector_stores.chroma import ChromaVectorStore
 
 from core.agents.workers.retry_worker import (
@@ -30,13 +28,9 @@ ingest_dir.mkdir(exist_ok=True, parents=True)
 def main():
     chroma_client = chromadb.EphemeralClient()
 
-    Settings.llm = llm = LiteLLM(
-        api_base=config.default_llm_api_base_url,
-        model="ollama/mistral-7b-instruct-v0.2.Q4_K_M.gguf",
-        temperature=0.0,
-    )
+    Settings.llm = llm = config.get_default_ollama_instruct_llm()
 
-    Settings.embed_model = embed_model = HuggingFaceEmbedding("BAAI/bge-large-en-v1.5")
+    Settings.embed_model = embed_model = config.get_default_hugging_face_embedding()
 
     Settings.callback_manager = llm.callback_manager
 
