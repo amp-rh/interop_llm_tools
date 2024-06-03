@@ -1,36 +1,56 @@
 import random
 
+import llama_index.core as lmx
+import phoenix as px
 import pytest
 
-import interop_llm_tools.api
+from interop_llm_tools.api import get_llm_api, get_factory_api
 
 
-@pytest.fixture(autouse=True, scope="function")
-def patch_chroma_collection_name(monkeypatch):
-    collection_name = f"unit_{str(random.randint(0, 100_000)).zfill(6)}"
-    monkeypatch.setenv("CHROMA_COLLECTION_NAME", collection_name)
+@pytest.fixture(autouse=True)
+def init_tracing():
+    px.launch_app()
+    lmx.set_global_handler("arize_phoenix")
 
 
-def test_live_completion():
-    api = interop_llm_tools.api.get_api()
-    response = api.complete("say that this is a test")
-    assert "test" in response
+@pytest.fixture
+def secret_number():
+    yield random.randint(1, 999_999)
 
 
-def test_live_knowledge_graph_query():
-    api = interop_llm_tools.api.get_api()
-    secret_number = random.randint(0, 10_000)
-    api.update_knowledge_from_triplet("secret number", "is", secret_number)
-    response = api.query("What is the secret number?")
-    assert str(secret_number) in response
+@pytest.fixture
+def secret_number_document_path(tmp_path, secret_number):
+    p = tmp_path / "secret_number.txt"
+    p.write_text(f"the secret number is {secret_number}")
+    yield p
 
 
-def test_live_ingestion_and_query(tmp_path):
-    api = interop_llm_tools.api.get_api()
-    secret_number = random.randint(0, 10_000)
-    tmp_path.mkdir(exist_ok=True, parents=True)
-    p = tmp_path / "secret_number_file.txt"
-    p.write_text(f"the secret number is {secret_number}.")
-    api.ingest_file(p)
-    response = api.query("What is the secret number?")
-    assert str(secret_number) in response
+class TestApi:
+    @pytest.mark.asyncio
+    async def test_llm_api_functionality(self):
+        api = get_llm_api()
+        resp = await api.acomplete("say that this is a test")
+        assert "test" in resp
+        assert "test" in (await self.aget_responses_from_traces()).pop()
+
+    @pytest.mark.asyncio
+    async def test_factory_api_functionality(
+        self, secret_number, secret_number_document_path
+    ):
+        api = get_factory_api()
+        agent = await api.aget_document_agent(document_path=secret_number_document_path)
+        resp = await agent.aquery("what is the secret number?")
+        assert str(secret_number) in resp.response
+
+    @staticmethod
+    async def aget_responses_from_traces():
+        async def aget_spans_df(max_retries=20, i=0):
+            df = px.active_session().get_spans_dataframe()
+            if i >= max_retries:
+                return df
+            if df.empty:
+                return await aget_spans_df(i=i + 1)
+            return df
+
+        spans_df = await aget_spans_df()
+        return spans_df["attributes.output.value"].to_list()
