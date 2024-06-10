@@ -1,85 +1,49 @@
-import os
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
-from core.base import BaseLanguageModelConfig, BaseApiConfig, BaseApi
-from core.common import LlmClientType
+from llama_index.core import Settings
+from llama_index.core.base.embeddings.base import BaseEmbedding
+from llama_index.embeddings.ollama import OllamaEmbedding
+
+from core.api.configs.embed_model_config import EmbedModelConfig
+from core.api.configs.llm_api_config import LlmApiConfig
+from core.base.base_api import BaseApi
 from core.data_models import LlmClient
+from mixins.from_config import FromConfigMixin
+from mixins.from_env import FromEnvMixin
 
 
 @dataclass
-class LlmClientConfig:
-    client_type: LlmClientType
-    base_api_url: str
-    request_timeout: int
-
-
-@dataclass
-class InstructModelConfig(BaseLanguageModelConfig):
-    model_name: str
-    temperature: float
-
-
-class EmbedModelConfig(BaseLanguageModelConfig):
-    model_name: str
-
-
-@dataclass
-class LlmApiConfig(BaseApiConfig):
-    client_config: LlmClientConfig
-    instruct_model_config: InstructModelConfig
-    embed_model_config: EmbedModelConfig
-
-    @classmethod
-    def from_env(cls):
-        return cls(
-            client_config=LlmClientConfig(
-                client_type=LlmClientType.from_str(os.getenv("LLM_CLIENT_TYPE")),
-                base_api_url=os.getenv("LLM_CLIENT_API_BASE"),
-                request_timeout=int(os.getenv("LLM_REQUEST_TIMEOUT", 0)),
-            ),
-            instruct_model_config=InstructModelConfig(
-                model_name=os.getenv("LLM_INSTRUCT_MODEL_NAME"),
-                temperature=float(os.getenv("LLM_INSTRUCT_MODEL_TEMPERATURE", 0.0)),
-            ),
-            embed_model_config=EmbedModelConfig(
-                model_name=os.getenv("LLM_EMBED_MODEL_NAME")
-            ),
-        )
-
-
-@dataclass
-class LlmApi(BaseApi[LlmApiConfig]):
-    config: LlmApiConfig = field(default_factory=LlmApiConfig.from_env)
-    client: LlmClient = None
+class LlmApi(BaseApi, FromConfigMixin[LlmApiConfig], FromEnvMixin):
+    client: LlmClient
+    embed_model: BaseEmbedding
 
     def __post_init__(self):
-        if self.config.client_config.client_type is LlmClientType.OLLAMA:
-            from llama_index.llms.ollama import Ollama
+        Settings.llm = self.client.inner
+        Settings.embed_model = self.embed_model
+        Settings.callback_manager = self.client.inner.callback_manager
 
-            inner = Ollama(
-                model=self.config.instruct_model_config.model_name,
-                base_url=self.config.client_config.base_api_url,
-                temperature=self.config.instruct_model_config.temperature,
-                request_timeout=self.config.client_config.request_timeout,
-            )
-        else:
-            raise NotImplemented()
-        self.client = LlmClient(inner=inner)
+    async def acomplete(self, prompt: str) -> str:
+        resp = await self.client.inner.acomplete(prompt=prompt)
+        return resp.text
 
     @classmethod
-    def from_config(cls, config: LlmApiConfig):
-        return cls(config=config)
-
-    def get_embed_model(self):
-        if self.config.client_config.client_type is LlmClientType.OLLAMA:
-            from llama_index.embeddings.ollama import OllamaEmbedding
-
+    def get_embed_model(cls, client: LlmClient, config: EmbedModelConfig):
+        if client.client_type == client.client_type.OLLAMA:
             return OllamaEmbedding(
-                base_url=self.config.client_config.base_api_url,
-                model_name=self.config.embed_model_config.model_name,
+                model_name=config.model_name, base_url=config.base_api_url
             )
-        raise NotImplemented
 
-    async def acomplete(self, prompt):
-        resp = await self.client.inner.acomplete(prompt)
-        return resp.text
+    @classmethod
+    def from_config(cls, config: LlmApiConfig) -> "LlmApi":
+        client = LlmClient.from_config(config=config.client_config)
+        embed_model = cls.get_embed_model(
+            client=client, config=config.embed_model_config
+        )
+        return cls(
+            client=client,
+            embed_model=embed_model,
+        )
+
+    @classmethod
+    def from_env(cls) -> "LlmApi":
+        return cls.from_config(config=LlmApiConfig.from_env())

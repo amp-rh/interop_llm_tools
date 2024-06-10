@@ -4,4 +4,4 @@ from dataclasses import dataclass
 
 @dataclass
 class BaseWrapper[T](abc.ABC):
-    inner: T
+    inner: T = None
