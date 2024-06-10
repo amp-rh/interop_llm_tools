@@ -1,23 +1,38 @@
-from typing import Any, Optional, Sequence, Tuple
+from typing import Any, Optional, Tuple
 
 from llama_index.core.agent import CustomSimpleAgentWorker
 from llama_index.core.base.agent.types import Task, Task as LmxTask
 from llama_index.core.base.llms.types import ChatMessage, MessageRole
 from llama_index.core.chat_engine.types import AgentChatResponse
-from llama_index.core.query_engine import BaseQueryEngine, RouterQueryEngine
+from llama_index.core.query_engine import (
+    RouterQueryEngine,
+)
 from llama_index.core.tools import QueryEngineTool
 from llama_index.core.utils import print_text
 
 
 class BaseAgentWorker(CustomSimpleAgentWorker):
-    root_query_engine: BaseQueryEngine = None
+    root_query_engine: RouterQueryEngine = None
+    tools: list[QueryEngineTool]
 
-    def __init__(self, tools: Sequence[QueryEngineTool], llm, **kwargs):
+    def __init__(self, tools: list[QueryEngineTool], llm, **kwargs):
         super().__init__(tools=tools, llm=llm, **kwargs)
-        if len(tools):
-            self.root_query_engine = RouterQueryEngine.from_defaults(
-                llm=self.llm, query_engine_tools=tools
+
+        if len(self.tools):
+            router_query_engine = RouterQueryEngine.from_defaults(
+                query_engine_tools=tools, llm=llm
             )
+
+            tools.append(
+                QueryEngineTool.from_defaults(
+                    query_engine=router_query_engine,
+                    name="router_query_engine_tool",
+                    description="ALWAYS use this tool.",
+                    resolve_input_errors=True,
+                ),
+            )
+
+            self.root_query_engine = router_query_engine
 
     def _initialize_state(self, task: Task, **kwargs: Any) -> dict[str, Any]:
         return {}
@@ -69,6 +84,7 @@ class BaseAgentWorker(CustomSimpleAgentWorker):
         print_text(f"agent: {response}", color="green", end="\n")
 
         is_done = True
+        # TODO: Add response evaluation and retry logic
         if is_done:
             state["memory"].put(user_message)
             state["memory"].put(

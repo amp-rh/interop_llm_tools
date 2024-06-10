@@ -33,13 +33,32 @@ class TestApi:
         assert "test" in resp
 
     @pytest.mark.asyncio
-    async def test_factory_api_functionality(
+    async def test_factory_api_functionality_with_changing_contexts(
         self, secret_number, secret_number_document_path
     ):
         api = get_factory_api()
         agent = await api.aget_document_agent(document_path=secret_number_document_path)
         resp = await agent.aquery("what is the secret number?")
         assert str(secret_number) in resp
+
+        second_secret_number = 123 - secret_number
+
+        second_secret_number_document_path = secret_number_document_path.with_name(
+            "other_doc.json"
+        )
+        second_secret_number_document_path.write_text(
+            '{"secret_number": ' + str(second_secret_number) + "}"
+        )
+
+        agent = await api.aget_multi_document_agent(
+            document_paths=[
+                secret_number_document_path,
+                second_secret_number_document_path,
+            ]
+        )
+        resp = await agent.aquery("what are the two secret numbers?")
+        assert str(secret_number) in resp
+        assert str(second_secret_number) in resp
 
     @pytest.mark.asyncio
     async def test_agent_api_functionality(self):

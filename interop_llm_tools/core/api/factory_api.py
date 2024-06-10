@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from pathlib import Path
 
+import nest_asyncio
 from llama_index.core import SimpleDirectoryReader, VectorStoreIndex
 from llama_index.core.agent import ParallelAgentRunner
 from llama_index.core.base.embeddings.base import BaseEmbedding
@@ -46,15 +47,40 @@ class FactoryApi(BaseApi):
 
         index = VectorStoreIndex(nodes=nodes, show_progress=True)
 
-        tools = [
-            QueryEngineTool.from_defaults(
-                query_engine=index.as_query_engine(),
-                return_direct=True,
-                resolve_input_errors=True,
-            )
-        ]
-
         agent = AgentApi.from_config(
+            config=AgentApiConfig(
+                runner_config=AgentRunnerConfig(runner_type=ParallelAgentRunner),
+                worker_config=AgentWorkerConfig(
+                    worker_type=SimpleAgentWorker,
+                    tools=[
+                        QueryEngineTool.from_defaults(
+                            query_engine=index.as_query_engine(),
+                            resolve_input_errors=True,
+                            name=f"{document_path.name}_tool",
+                            description=f"Provides information about the document {document_path.name}",
+                        )
+                    ],
+                ),
+            )
+        )
+        return agent
+
+    async def aget_multi_document_agent(self, document_paths: list[Path]):
+        nest_asyncio.apply()
+
+        tools = []
+
+        for p in document_paths:
+            agent = (await self.aget_document_agent(document_path=p)).agent_runner.inner
+            tools.append(
+                QueryEngineTool.from_defaults(
+                    query_engine=agent,
+                    name=f"{p.name}_agent_tool",
+                    description=f"Provides information about the document {p.name}",
+                )
+            )
+
+        root_agent = AgentApi.from_config(
             config=AgentApiConfig(
                 runner_config=AgentRunnerConfig(runner_type=ParallelAgentRunner),
                 worker_config=AgentWorkerConfig(
@@ -62,4 +88,4 @@ class FactoryApi(BaseApi):
                 ),
             )
         )
-        return agent
+        return root_agent

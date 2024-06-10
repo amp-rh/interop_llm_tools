@@ -10,6 +10,7 @@ python =  ">=3.12,<3.13"
 python-dotenv = "^1.0.1"
 llama-index = "^0.10.43"
 llama-index-embeddings-ollama = "^0.1.2"
+nest-asyncio = "^1.6.0"
 
 
 [tool.poetry.group.dev.dependencies]
