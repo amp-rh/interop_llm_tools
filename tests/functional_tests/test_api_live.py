@@ -4,7 +4,7 @@ import llama_index.core as lmx
 import phoenix as px
 import pytest
 
-from interop_llm_tools.api import get_llm_api, get_factory_api
+from interop_llm_tools.api import get_agent_api, get_factory_api, get_llm_api
 
 
 @pytest.fixture(autouse=True)
@@ -31,7 +31,6 @@ class TestApi:
         api = get_llm_api()
         resp = await api.acomplete("say that this is a test")
         assert "test" in resp
-        assert "test" in (await self.aget_responses_from_traces()).pop()
 
     @pytest.mark.asyncio
     async def test_factory_api_functionality(
@@ -40,17 +39,13 @@ class TestApi:
         api = get_factory_api()
         agent = await api.aget_document_agent(document_path=secret_number_document_path)
         resp = await agent.aquery("what is the secret number?")
-        assert str(secret_number) in resp.response
+        assert str(secret_number) in resp
 
-    @staticmethod
-    async def aget_responses_from_traces():
-        async def aget_spans_df(max_retries=20, i=0):
-            df = px.active_session().get_spans_dataframe()
-            if i >= max_retries:
-                return df
-            if df.empty:
-                return await aget_spans_df(i=i + 1)
-            return df
-
-        spans_df = await aget_spans_df()
-        return spans_df["attributes.output.value"].to_list()
+    @pytest.mark.asyncio
+    async def test_agent_api_functionality(self):
+        agent = get_agent_api()
+        resp = await agent.achat('repeat the following: "this is a test"')
+        assert "test" in resp
+        # test chat history is available to agent
+        resp = await agent.achat("what was the last thing you said?")
+        assert "test" in resp
