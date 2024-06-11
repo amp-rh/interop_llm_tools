@@ -3,5 +3,5 @@ from dataclasses import dataclass
 
 
 @dataclass
-class BaseWrapper[T](abc.ABC):
-    inner: T = None
+class BaseWrapper[_inner_cls](abc.ABC):
+    inner: _inner_cls
