@@ -17,7 +17,11 @@ from core.api.ingestion_api import IngestionApi
 from core.api.llm_api import LlmApi
 from core.base.base_api import BaseApi
 from core.data_models.ingestion_pipeline import IngestionPipeline
+from core.pipelines.jira_issue_summary_aggregation_pipeline import (
+    JiraIssueSummaryAggregationPipeline,
+)
 from core.pipelines.jira_issue_summary_pipeline import JiraIssueSummaryPipeline
+from core.pipelines.summary_aggregation_pipeline import SummaryAggregationPipeline
 from core.pipelines.summary_pipeline import SummaryPipeline
 
 
@@ -88,15 +92,25 @@ class FactoryApi(BaseApi):
     @staticmethod
     def get_summary_pipeline() -> SummaryPipeline:
         return SummaryPipeline.from_config(
-            config=PipelineApiConfig(
-                agent_api=AgentApi.from_config(AgentApiConfig.from_env()),
-            )
+            config=PipelineApiConfig(agent_api=AgentApi.from_env())
         )
 
     @staticmethod
     def get_jira_issue_summary_pipeline() -> JiraIssueSummaryPipeline:
         return JiraIssueSummaryPipeline.from_config(
-            config=PipelineApiConfig(
-                agent_api=AgentApi.from_config(AgentApiConfig.from_env())
-            )
+            config=PipelineApiConfig(agent_api=AgentApi.from_env())
+        )
+
+    @staticmethod
+    def get_summary_aggregation_pipeline() -> SummaryAggregationPipeline:
+        return SummaryAggregationPipeline.from_config(
+            config=PipelineApiConfig(agent_api=AgentApi.from_env())
+        )
+
+    @staticmethod
+    def get_jira_issue_summary_aggregation_pipeline() -> (
+        JiraIssueSummaryAggregationPipeline
+    ):
+        return JiraIssueSummaryAggregationPipeline.from_config(
+            config=PipelineApiConfig(agent_api=AgentApi.from_env())
         )

@@ -5,8 +5,8 @@ from core.base.base_prompt_template import BasePromptTemplate
 
 @dataclass
 class RefinePromptTemplate(BasePromptTemplate):
-    user_query: str
-    agent_response: str
+    user_query: str = ""
+    agent_response: str = ""
 
     def get_prompt_inputs_dict(self) -> dict:
         return {"user_query": self.user_query, "agent_response": self.agent_response}

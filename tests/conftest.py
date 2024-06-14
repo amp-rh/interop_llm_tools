@@ -45,13 +45,15 @@ def secret_numbers(tmp_path) -> list:
 
 
 @pytest.fixture
-def jira_api(jira_issue_key):
+def jira_api(jira_issue_keys):
     yield get_jira_api()
 
 
 @pytest.fixture
-def jira_issue_key():
-    env_var_name = "TEST_JIRA_ISSUE_KEY"
-    issue_key = os.getenv(env_var_name)
-    assert issue_key, f"please set {env_var_name} to run this test"
-    return issue_key
+def jira_issue_keys():
+    env_var_name = "TEST_JIRA_ISSUE_KEYS"
+    issue_keys = os.getenv(env_var_name)
+    assert (
+        issue_keys
+    ), f"please set {env_var_name} to run this test. use comma-separated values (no spaces)."
+    return issue_keys.split(",")

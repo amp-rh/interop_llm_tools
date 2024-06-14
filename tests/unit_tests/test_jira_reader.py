@@ -9,7 +9,7 @@ def test_init_jira_reader():
 
 
 @pytest.mark.asyncio
-async def test_aload_data_returns_list_of_documents(jira_issue_key):
-    docs = await JiraReader().aload_data(issue_keys=[jira_issue_key])
+async def test_aload_data_returns_list_of_documents(jira_issue_keys):
+    docs = await JiraReader().aload_data(issue_keys=jira_issue_keys)
     assert isinstance(docs, list)
     assert isinstance(docs.pop(), Document)
