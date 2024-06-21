@@ -6,10 +6,10 @@ from json import JSONDecodeError
 import requests
 from requests import Response
 
-from core.api.configs.jira_api_config import JiraApiConfig
 from core.base.base_api import BaseApi
+from core.configs.jira_api_config import JiraApiConfig
 from mixins.from_config import FromConfigMixin
-from mixins.from_env import FromEnvMixin
+from mixins.from_env import FromDefaultsMixin
 
 
 @dataclass
@@ -89,7 +89,7 @@ class JiraIssue:
 
 
 @dataclass
-class JiraApi(BaseApi, FromConfigMixin[JiraApiConfig], FromEnvMixin):
+class JiraApi(BaseApi, FromConfigMixin[JiraApiConfig], FromDefaultsMixin):
     domain_url: str = None
     session: requests.Session = requests.session()
 
@@ -111,10 +111,10 @@ class JiraApi(BaseApi, FromConfigMixin[JiraApiConfig], FromEnvMixin):
 
     @classmethod
     def from_config(cls, config: JiraApiConfig) -> "JiraApi":
-        return cls.from_env()
+        return cls.from_defaults()
 
     @classmethod
-    def from_env(cls) -> "JiraApi":
+    def from_defaults(cls) -> "JiraApi":
         domain_url_env_key = "JIRA_DOMAIN_URL"
         jira_token_env_key = "JIRA_TOKEN"
 

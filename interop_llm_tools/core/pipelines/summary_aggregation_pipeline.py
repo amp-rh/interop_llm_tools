@@ -13,8 +13,8 @@ class SummaryAggregationPipeline(PipelineApi):
     condense_iterations = 1
 
     async def arun(self, contexts: list[str]) -> str:
-        summary_pipeline = SummaryPipeline.from_env()
-        condense_pipeline = CondensePipeline.from_env()
+        summary_pipeline = SummaryPipeline.from_defaults()
+        condense_pipeline = CondensePipeline.from_defaults()
 
         async def summarize(s: str):
             return await summary_pipeline.arun(context=s)

@@ -8,14 +8,14 @@ from llama_index.core.tools import QueryEngineTool
 
 from core.agent_workers.simple import SimpleAgentWorker
 from core.api.agent_api import AgentApi
-from core.api.configs.agent_api_config import AgentApiConfig
-from core.api.configs.agent_runner_config import AgentRunnerConfig
-from core.api.configs.agent_worker_config import AgentWorkerConfig
-from core.api.configs.factory_api_config import FactoryApiConfig
-from core.api.configs.pipeline_api_config import PipelineApiConfig
 from core.api.ingestion_api import IngestionApi
 from core.api.llm_api import LlmApi
 from core.base.base_api import BaseApi
+from core.configs.agent_api_config import AgentApiConfig
+from core.configs.agent_runner_config import AgentRunnerConfig
+from core.configs.agent_worker_config import AgentWorkerConfig
+from core.configs.factory_api_config import FactoryApiConfig
+from core.configs.pipeline_api_config import PipelineApiConfig
 from core.data_models.ingestion_pipeline import IngestionPipeline
 from core.pipelines.jira_issue_summary_aggregation_pipeline import (
     JiraIssueSummaryAggregationPipeline,
@@ -92,19 +92,19 @@ class FactoryApi(BaseApi):
     @staticmethod
     def get_summary_pipeline() -> SummaryPipeline:
         return SummaryPipeline.from_config(
-            config=PipelineApiConfig(agent_api=AgentApi.from_env())
+            config=PipelineApiConfig(agent_api=AgentApi.from_defaults())
         )
 
     @staticmethod
     def get_jira_issue_summary_pipeline() -> JiraIssueSummaryPipeline:
         return JiraIssueSummaryPipeline.from_config(
-            config=PipelineApiConfig(agent_api=AgentApi.from_env())
+            config=PipelineApiConfig(agent_api=AgentApi.from_defaults())
         )
 
     @staticmethod
     def get_summary_aggregation_pipeline() -> SummaryAggregationPipeline:
         return SummaryAggregationPipeline.from_config(
-            config=PipelineApiConfig(agent_api=AgentApi.from_env())
+            config=PipelineApiConfig(agent_api=AgentApi.from_defaults())
         )
 
     @staticmethod
@@ -112,5 +112,5 @@ class FactoryApi(BaseApi):
         JiraIssueSummaryAggregationPipeline
     ):
         return JiraIssueSummaryAggregationPipeline.from_config(
-            config=PipelineApiConfig(agent_api=AgentApi.from_env())
+            config=PipelineApiConfig(agent_api=AgentApi.from_defaults())
         )

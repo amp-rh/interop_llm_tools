@@ -7,7 +7,7 @@ from core.api.jira_api import JiraApi
 
 
 class JiraReader(BaseReader):
-    jira_api: JiraApi = JiraApi.from_env()
+    jira_api: JiraApi = JiraApi.from_defaults()
 
     async def aload_data(
         self, issue_keys: list[str], **load_kwargs: Any

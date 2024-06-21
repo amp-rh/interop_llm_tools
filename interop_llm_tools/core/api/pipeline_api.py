@@ -6,16 +6,16 @@ from llama_index.core.query_pipeline import (
 )
 
 from core.api.agent_api import AgentApi
-from core.api.configs.pipeline_api_config import PipelineApiConfig
 from core.base.base_api import BaseApi
 from core.base.base_prompt_template import BasePromptTemplate
+from core.configs.pipeline_api_config import PipelineApiConfig
 from core.prompt_templates.default import DefaultPromptTemplate
 from mixins.from_config import FromConfigMixin
-from mixins.from_env import FromEnvMixin
+from mixins.from_env import FromDefaultsMixin
 
 
 @dataclass
-class PipelineApi(BaseApi, FromConfigMixin[PipelineApiConfig], FromEnvMixin):
+class PipelineApi(BaseApi, FromConfigMixin[PipelineApiConfig], FromDefaultsMixin):
     agent_api: AgentApi
     prompt_template_cls: Type[BasePromptTemplate] = DefaultPromptTemplate
     _chain = []
@@ -24,12 +24,12 @@ class PipelineApi(BaseApi, FromConfigMixin[PipelineApiConfig], FromEnvMixin):
     def from_config(cls, config: PipelineApiConfig) -> "PipelineApi":
         return cls(
             prompt_template_cls=config.prompt_template_cls or cls.prompt_template_cls,
-            agent_api=config.agent_api or AgentApi.from_env(),
+            agent_api=config.agent_api or AgentApi.from_defaults(),
         )
 
     @classmethod
-    def from_env(cls) -> "PipelineApi":
-        return cls.from_config(PipelineApiConfig.from_env())
+    def from_defaults(cls) -> "PipelineApi":
+        return cls.from_config(PipelineApiConfig.from_defaults())
 
     def get_formatted_prompt(self, **kwargs) -> str:
         return self.prompt_template_cls(**kwargs).format()

@@ -5,8 +5,8 @@ from llama_index.core.ingestion.pipeline import (
     IngestionPipeline as LmxIngestionPipeline,
 )
 
-from core.api.configs.ingestion_api_config import IngestionApiConfig
 from core.base.base_api import BaseApi
+from core.configs.ingestion_api_config import IngestionApiConfig
 from core.data_models.ingestion_pipeline import IngestionPipeline
 from mixins.from_config import FromConfigMixin
 

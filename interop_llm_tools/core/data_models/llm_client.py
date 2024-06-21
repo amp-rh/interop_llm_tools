@@ -4,8 +4,8 @@ from llama_index.core.base.llms.base import BaseLLM as LmxBaseLlmClient
 from llama_index.core.llms import LLM
 from llama_index.llms.ollama import Ollama
 
-from core.api.configs.llm_client_config import LlmClientConfig, LlmClientType
 from core.base.base_wrapper import BaseWrapper
+from core.configs.llm_client_config import LlmClientConfig, LlmClientType
 from mixins.from_config import FromConfigMixin
 
 

@@ -9,7 +9,7 @@ from core.prompt_templates.summarize import SummarizePromptTemplate
 @dataclass
 class JiraIssueSummaryPipeline(SummaryPipeline):
     prompt_template_cls = SummarizePromptTemplate
-    jira_api: ClassVar = field(default=JiraApi.from_env())
+    jira_api: ClassVar = field(default=JiraApi.from_defaults())
 
     async def arun(self, jira_issue_key: str) -> str:
         return await super().arun(

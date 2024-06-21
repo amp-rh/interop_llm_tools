@@ -1,14 +1,14 @@
 from dataclasses import dataclass
 
-from core.api.configs.agent_api_config import AgentApiConfig
 from core.base.base_api import BaseApi
+from core.configs.agent_api_config import AgentApiConfig
 from core.data_models import AgentRunner, AgentWorker
 from mixins.from_config import FromConfigMixin
-from mixins.from_env import FromEnvMixin
+from mixins.from_env import FromDefaultsMixin
 
 
 @dataclass
-class AgentApi(BaseApi, FromConfigMixin[AgentApiConfig], FromEnvMixin):
+class AgentApi(BaseApi, FromConfigMixin[AgentApiConfig], FromDefaultsMixin):
     agent_worker: AgentWorker
     agent_runner: AgentRunner
 
@@ -47,5 +47,5 @@ class AgentApi(BaseApi, FromConfigMixin[AgentApiConfig], FromEnvMixin):
         return cls(agent_worker=agent_worker, agent_runner=agent_runner)
 
     @classmethod
-    def from_env(cls) -> "AgentApi":
-        return cls.from_config(config=AgentApiConfig.from_env())
+    def from_defaults(cls) -> "AgentApi":
+        return cls.from_config(config=AgentApiConfig.from_defaults())

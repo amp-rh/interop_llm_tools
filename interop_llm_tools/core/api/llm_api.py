@@ -4,16 +4,16 @@ from llama_index.core import Settings
 from llama_index.core.base.embeddings.base import BaseEmbedding
 from llama_index.embeddings.ollama import OllamaEmbedding
 
-from core.api.configs.embed_model_config import EmbedModelConfig
-from core.api.configs.llm_api_config import LlmApiConfig
 from core.base.base_api import BaseApi
+from core.configs.embed_model_config import EmbedModelConfig
+from core.configs.llm_api_config import LlmApiConfig
 from core.data_models import LlmClient
 from mixins.from_config import FromConfigMixin
-from mixins.from_env import FromEnvMixin
+from mixins.from_env import FromDefaultsMixin
 
 
 @dataclass
-class LlmApi(BaseApi, FromConfigMixin[LlmApiConfig], FromEnvMixin):
+class LlmApi(BaseApi, FromConfigMixin[LlmApiConfig], FromDefaultsMixin):
     client: LlmClient
     embed_model: BaseEmbedding
 
@@ -45,5 +45,5 @@ class LlmApi(BaseApi, FromConfigMixin[LlmApiConfig], FromEnvMixin):
         )
 
     @classmethod
-    def from_env(cls) -> "LlmApi":
-        return cls.from_config(config=LlmApiConfig.from_env())
+    def from_defaults(cls) -> "LlmApi":
+        return cls.from_config(config=LlmApiConfig.from_defaults())

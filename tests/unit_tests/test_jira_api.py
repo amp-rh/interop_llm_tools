@@ -6,7 +6,7 @@ def test_init_jira_api():
 
 
 def test_init_jira_api_from_env():
-    assert isinstance(JiraApi.from_env(), JiraApi)
+    assert isinstance(JiraApi.from_defaults(), JiraApi)
 
 
 def test_get_jira_issue_by_key(jira_api, jira_issue_keys):

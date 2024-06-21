@@ -11,13 +11,13 @@ from llama_index.core.readers.base import BaseReader
 
 from core.api.llm_api import LlmApi
 from core.base.base_api_config import BaseApiConfig
-from mixins.from_env import FromEnvMixin
+from mixins.from_env import FromDefaultsMixin
 
 
 @dataclass
-class IngestionApiConfig(BaseApiConfig, FromEnvMixin):
+class IngestionApiConfig(BaseApiConfig, FromDefaultsMixin):
     embed_model: BaseEmbedding = field(
-        default_factory=lambda: LlmApi.from_env().embed_model
+        default_factory=lambda: LlmApi.from_defaults().embed_model
     )
     splitter: SemanticSplitterNodeParser = None
     node_parser: HierarchicalNodeParser = field(
@@ -34,10 +34,10 @@ class IngestionApiConfig(BaseApiConfig, FromEnvMixin):
 
     @classmethod
     def from_paths(cls, paths: list[Path]) -> "IngestionApiConfig":
-        return cls.from_env(reader=SimpleDirectoryReader(input_files=paths))
+        return cls.from_defaults(reader=SimpleDirectoryReader(input_files=paths))
 
     @classmethod
-    def from_env(
+    def from_defaults(
         cls,
         reader=BaseReader(),
     ) -> "IngestionApiConfig":

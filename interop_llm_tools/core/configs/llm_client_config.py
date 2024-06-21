@@ -1,8 +1,7 @@
 import enum
-import os
 from dataclasses import dataclass
 
-from interop_llm_tools.mixins.from_env import FromEnvMixin
+from core.configs.config_loader import get_configs
 
 
 class LlmClientType(enum.Enum):
@@ -16,27 +15,30 @@ class LlmClientType(enum.Enum):
 
 
 @dataclass
-class LlmClientConfig(FromEnvMixin):
+class LlmClientConfig:
     client_type: LlmClientType
     base_api_url: str
-    request_timeout: int
-    model_name: str
+    request_timeout: float
+    instruct_model_name: str
+    embed_model_name: str
     temperature: float
 
     @classmethod
-    def from_env(cls) -> "LlmClientConfig":
+    def from_loaded_configs(cls, model_service_name: str):
+        m = get_configs().model_services.get(model_service_name)
         return cls(
-            client_type=LlmClientType.from_str(os.getenv("LLM_CLIENT_TYPE")),
-            base_api_url=os.getenv("LLM_CLIENT_API_BASE"),
-            request_timeout=int(os.getenv("LLM_REQUEST_TIMEOUT", 0)),
-            model_name=os.getenv("LLM_INSTRUCT_MODEL_NAME"),
-            temperature=os.getenv("LLM_INSTRUCT_MODEL_TEMPERATURE", 0.0),
+            client_type=LlmClientType.from_str(m.client_type),
+            base_api_url=m.base_api_url,
+            request_timeout=m.request_timeout,
+            instruct_model_name=m.instruct_model_name,
+            embed_model_name=m.embed_model_name,
+            temperature=m.temperature,
         )
 
     def to_ollama_dict(self):
         return {
             "base_url": self.base_api_url,
-            "model": self.model_name,
+            "model": self.instruct_model_name,
             "temperature": self.temperature,
             "request_timeout": self.request_timeout,
         }

@@ -57,3 +57,24 @@ def jira_issue_keys():
         issue_keys
     ), f"please set {env_var_name} to run this test. use comma-separated values (no spaces)."
     return issue_keys.split(",")
+
+
+@pytest.fixture
+def static_test_resources_dir():
+    p = Path(__file__).with_name("test_resources")
+    assert p.is_dir()
+    return p
+
+
+@pytest.fixture
+def static_config_dir(monkeypatch, static_test_resources_dir):
+    p = static_test_resources_dir.joinpath("configs")
+    monkeypatch.setenv("CONFIG_DIR", p.as_posix())
+    assert p.is_dir()
+    return p
+
+
+@pytest.fixture
+def static_model_services_config_path(static_config_dir):
+    p = static_config_dir / "model_services.yaml"
+    assert p.is_file()

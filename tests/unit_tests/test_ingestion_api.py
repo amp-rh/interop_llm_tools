@@ -1,14 +1,17 @@
-from core.api.configs.ingestion_api_config import IngestionApiConfig
 from core.api.ingestion_api import IngestionApi
+from core.configs.ingestion_api_config import IngestionApiConfig
 
 
 def test_init_ingestion_api():
-    assert isinstance(IngestionApi(IngestionApiConfig.from_env()), IngestionApi)
+    assert isinstance(
+        IngestionApi(config=IngestionApiConfig.from_defaults()), IngestionApi
+    )
 
 
 def test_init_ingestion_api_from_config():
     assert isinstance(
-        IngestionApi.from_config(IngestionApiConfig.from_env()), IngestionApi
+        IngestionApi.from_config(config=IngestionApiConfig.from_defaults()),
+        IngestionApi,
     )
 
 

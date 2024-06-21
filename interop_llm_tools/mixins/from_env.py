@@ -3,7 +3,7 @@ from dataclasses import dataclass
 
 
 @dataclass
-class FromEnvMixin(abc.ABC):
+class FromDefaultsMixin(abc.ABC):
     @classmethod
-    def from_env(cls):
+    def from_defaults(cls):
         return cls()
