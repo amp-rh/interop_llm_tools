@@ -1,0 +1,7 @@
+data_sources:
+  my_jira_tickets:
+    data_loader: jira_reader
+    data_loader_inputs:
+      issue_keys:
+        - $TEST_JIRA_ISSUE_KEY_ONE
+        - $TEST_JIRA_ISSUE_KEY_TWO

@@ -32,6 +32,12 @@ class ModelService:
 
 
 @dataclass
+class DataSource:
+    data_loader: str = None
+    data_loader_inputs: dict = None
+
+
+@dataclass
 class ModelServicesConfig(BaseUserConfig):
     default_config = {}
 
@@ -41,16 +47,33 @@ class ModelServicesConfig(BaseUserConfig):
     @classmethod
     def from_raw(cls, d: dict[str, any]) -> "ModelServicesConfig":
         raw = d.get("model_services", cls.default_config)
-        return ModelServicesConfig(raw=raw)
+        return cls(raw=raw)
+
+
+@dataclass
+class DataSourcesConfig(BaseUserConfig):
+    default_config = {}
+
+    def get(self, k: str):
+        return DataSource(**self.raw.get(k))
+
+    @classmethod
+    def from_raw(cls, d: dict) -> "DataSourcesConfig":
+        raw = d.get("data_sources", cls.default_config)
+        return cls(raw=raw)
 
 
 @dataclass
 class LoadedConfigs:
     model_services: ModelServicesConfig
+    data_sources: DataSourcesConfig
 
     @classmethod
     def from_raw(cls, raw_configs_dict: dict):
-        return cls(model_services=ModelServicesConfig.from_raw(raw_configs_dict))
+        return cls(
+            model_services=ModelServicesConfig.from_raw(raw_configs_dict),
+            data_sources=DataSourcesConfig.from_raw(raw_configs_dict),
+        )
 
 
 @dataclass
@@ -74,7 +97,9 @@ class ConfigLoader:
         k = str(m).removeprefix("$")
         v = os.getenv(k)
         if v is None:
-            raise ValueError(f"environment variable not found: {k}")
+            raise ValueError(
+                f"environment variable specified in loaded config files was not found: {k}"
+            )
         t = t.replace(m, v)
         return t
 

@@ -4,10 +4,18 @@ import pytest
 
 from core.configs.config_loader import (
     ConfigLoader,
+    DataSource,
+    DataSourcesConfig,
     LoadedConfigs,
     ModelServicesConfig,
     get_configs,
 )
+
+
+@pytest.fixture(autouse=True)
+def setup_env(jira_issue_keys, monkeypatch):
+    monkeypatch.setenv("TEST_JIRA_ISSUE_KEY_ONE", jira_issue_keys.pop())
+    monkeypatch.setenv("TEST_JIRA_ISSUE_KEY_TWO", jira_issue_keys.pop())
 
 
 @pytest.fixture
@@ -52,3 +60,13 @@ def test_model_services_config(static_config_dir):
 
 def test_get_model_services_from_global_configs():
     assert isinstance(get_configs().model_services, ModelServicesConfig)
+
+
+def test_get_data_sources_from_global_configs(static_config_dir):
+    assert isinstance(get_configs().data_sources, DataSourcesConfig)
+
+
+def test_get_data_source_objects_by_name_from_loaded_configs(static_config_dir):
+    data_sources = get_configs().data_sources
+    ds = data_sources.get("my_jira_tickets")
+    assert isinstance(ds, DataSource)
