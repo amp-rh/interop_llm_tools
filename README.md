@@ -6,18 +6,18 @@ RAG-powered CI failure analysis pipeline built at Red Hat. Automates triage of O
 
 ```mermaid
 flowchart LR
-    A[OpenShift CI\nFailure Logs] --> B[Document Ingestion]
-    B --> C[Hierarchical\nChunking]
-    C --> D[Embedding\nmxbai-embed-large]
-    D --> E[ChromaDB\nVector Store]
+    A[OpenShift CI<br>Failure Logs] --> B[Document Ingestion]
+    B --> C[Hierarchical<br>Chunking]
+    C --> D[Embedding<br>mxbai-embed-large]
+    D --> E[ChromaDB<br>Vector Store]
     C --> F[Triplet Extraction]
-    F --> G[Knowledge\nGraph]
+    F --> G[Knowledge<br>Graph]
 
     H[Triage Query] --> I[Summary Index]
     E --> I
     G --> I
-    I --> J[LLM\nMistral 7B]
-    J --> K[Triage\nRecommendation]
+    I --> J[LLM<br>Mistral 7B]
+    J --> K[Triage<br>Recommendation]
 ```
 
 A failure comes in from OpenShift CI. The pipeline ingests the log, chunks it hierarchically, and indexes it in two ways: vector embeddings in ChromaDB for semantic search, and extracted triplets in a knowledge graph for structured relationships between components, errors, and fixes. At query time, a summary index fuses results from both retrievers before the LLM generates a triage recommendation.
