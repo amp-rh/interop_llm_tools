@@ -1,4 +1,4 @@
-# interop_llm_tools
+# ci-triage-rag
 
 RAG-powered CI failure analysis pipeline built at Red Hat. Automates triage of OpenShift CI test failures using hybrid retrieval (vector search + knowledge graphs), **reducing mean time to resolution by 40%**.
 
@@ -85,8 +85,8 @@ ollama pull mistral:7b-instruct-v0.2-q4_K_M
 ollama pull mxbai-embed-large
 
 # Clone and install
-git clone https://github.com/amp-rh/interop_llm_tools.git
-cd interop_llm_tools
+git clone https://github.com/amp-rh/ci-triage-rag.git
+cd ci-triage-rag
 poetry install
 
 # Configure
