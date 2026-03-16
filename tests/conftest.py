@@ -1,5 +1,6 @@
 import random
 from typing import Any, Sequence
+from unittest.mock import patch
 
 import pytest
 from llama_index.core.base.llms.base import BaseLLM
@@ -14,6 +15,7 @@ from llama_index.core.base.llms.types import (
     LLMMetadata,
 )
 from llama_index.core.base.query_pipeline.query import QueryComponent
+from llama_index.core.embeddings.mock_embed_model import MockEmbedding
 
 from api import Api
 from interop_llm_tools.core.config import Config
@@ -100,7 +102,9 @@ def api(llm):
 
 @pytest.fixture
 def llm(mock_generic_llm):
-    return Llm(inner=mock_generic_llm)
+    llm = Llm(inner=mock_generic_llm)
+    llm.get_embed_model = lambda: MockEmbedding(embed_dim=384)
+    return llm
 
 
 @pytest.fixture
