@@ -29,6 +29,7 @@ class LlmConfig:
     llm_api_base: str = os.getenv("LLM_API_BASE")
     llm_temperature: float = os.getenv("LLM_TEMPERATURE", 0.0)
     llm_request_timeout: float = os.getenv("LLM_REQUEST_TIMEOUT", 300.0)
+    chroma_persist_dir: str = os.getenv("CHROMA_PERSIST_DIR", "./chroma_data")
 
     def __post_init__(self):
         if not self.llm_api_base:

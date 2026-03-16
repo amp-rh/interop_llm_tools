@@ -2,7 +2,7 @@ import os
 from dataclasses import dataclass
 from pathlib import Path
 
-from chromadb import EphemeralClient
+from chromadb import PersistentClient
 from llama_index.core import (
     Settings,
     KnowledgeGraphIndex,
@@ -21,16 +21,25 @@ from llama_index.vector_stores.chroma import ChromaVectorStore
 from interop_llm_tools.core.llm import Llm
 
 
+DEFAULT_CHROMA_PERSIST_DIR = "./chroma_data"
+
+
 @dataclass
 class LlmContext:
     llm: Llm
+    chroma_persist_dir: str = None
 
     def __post_init__(self):
+        if self.chroma_persist_dir is None:
+            self.chroma_persist_dir = os.getenv(
+                "CHROMA_PERSIST_DIR", DEFAULT_CHROMA_PERSIST_DIR
+            )
+
         Settings.llm = self.llm.inner
         Settings.embed_model = self.llm.get_embed_model()
 
-        self.chroma_client = EphemeralClient()
-        self.chroma_collection = self.chroma_client.create_collection(
+        self.chroma_client = PersistentClient(path=self.chroma_persist_dir)
+        self.chroma_collection = self.chroma_client.get_or_create_collection(
             name=os.getenv("CHROMA_COLLECTION_NAME", "default")
         )
 
