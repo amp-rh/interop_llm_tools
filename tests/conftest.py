@@ -88,9 +88,10 @@ def mock_generic_llm():
 
 
 @pytest.fixture(autouse=True, scope="function")
-def patch_chroma_collection_name(monkeypatch):
+def patch_chroma_collection_name(monkeypatch, tmp_path):
     collection_name = f"unit_{str(random.randint(0, 100_000)).zfill(6)}"
     monkeypatch.setenv("CHROMA_COLLECTION_NAME", collection_name)
+    monkeypatch.setenv("CHROMA_PERSIST_DIR", str(tmp_path / "chroma_test_data"))
 
 
 @pytest.fixture

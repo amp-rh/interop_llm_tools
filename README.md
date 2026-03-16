@@ -133,6 +133,7 @@ All configuration is environment-driven:
 | `LLM_TEMPERATURE` | `0.0` | Generation temperature |
 | `LLM_REQUEST_TIMEOUT` | `300` | Request timeout in seconds |
 | `CHROMA_COLLECTION_NAME` | `default` | ChromaDB collection name |
+| `CHROMA_PERSIST_DIR` | `./chroma_data` | Directory for ChromaDB persistent storage |
 
 ## Results
 
